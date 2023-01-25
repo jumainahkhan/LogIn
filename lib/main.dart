@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:login/Screens/signup/sign_up_one.dart';
+import 'package:login/Screens/login/auth_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -19,7 +25,7 @@ class MyApp extends StatelessWidget {
               primary: HexColor("#8d8d8d"),
             ),
       ),
-      home: const SignUpOne(),
+      home: const AuthPage(),
     );
   }
 }
