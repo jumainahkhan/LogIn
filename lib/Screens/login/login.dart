@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,6 +34,24 @@ class _LoginScreenState extends State<LoginScreen> {
             title: Text(message),
           );
         });
+  }
+
+  String _errorMessage = "";
+
+  void validateEmail(String val) {
+    if (val.isEmpty) {
+      setState(() {
+        _errorMessage = "Email can not be empty";
+      });
+    } else if (!EmailValidator.validate(val, true)) {
+      setState(() {
+        _errorMessage = "Invalid Email Address";
+      });
+    } else {
+      setState(() {
+        _errorMessage = "";
+      });
+    }
   }
 
   @override
@@ -93,10 +112,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                     height: 10,
                                   ),
                                   MyTextField(
+                                    onChanged: (() {
+                                      validateEmail(emailController.text);
+                                    }),
                                     controller: emailController,
                                     hintText: "hello@gmail.com",
                                     obscureText: false,
                                     prefixIcon: const Icon(Icons.mail_outline),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                    child: Text(
+                                      _errorMessage,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.red,
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(
                                     height: 35,

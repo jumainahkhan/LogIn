@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +6,7 @@ import 'package:login/Screens/login/login.dart';
 import 'package:login/Screens/signup/sign_up_two.dart';
 import 'package:login/components/my_button.dart';
 import 'package:login/controller/sign_up_controller.dart';
+import 'package:email_validator/email_validator.dart';
 
 List<String> list = <String>['Student', 'Teacher', 'Alumni'];
 
@@ -22,26 +22,8 @@ class _SignUpOneState extends State<SignUpOne> {
   final passwordController = TextEditingController().obs;
   SignUpController signUpController = Get.put(SignUpController());
 
-  Future signUserUp() async {
-    // create user
-
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.string, password: passwordController.string);
-
-    //add user details
-    // addUserDetails(
-    //     dropDownController, emailController.string, passwordController.string);
-  }
-
-  // Future addUserDetails(String dropDown, String email, String password) async {
-  //   await FirebaseFirestore.instance.collection("user").add({
-  //     "userType": dropDown,
-  //     "email": email,
-  //     "password": password,
-  //   });
-  // }
-
   String dropdownValue = list.first;
+  String _errorMessage = "";
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +65,7 @@ class _SignUpOneState extends State<SignUpOne> {
                               ),
                             ),
                             const SizedBox(
-                              height: 8,
+                              height: 5,
                             ),
                             Padding(
                               padding: const EdgeInsets.fromLTRB(15, 0, 0, 20),
@@ -137,10 +119,17 @@ class _SignUpOneState extends State<SignUpOne> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    height: 8,
+                                    height: 5,
                                   ),
                                   TextField(
                                     controller: emailController.value,
+                                    onChanged: (value) {
+                                      validateEmail(value);
+                                      signUpController.setEmail(value);
+                                    },
+                                    onSubmitted: (value) {
+                                      signUpController.setEmail(value);
+                                    },
                                     cursorColor: HexColor("#4f4f4f"),
                                     decoration: InputDecoration(
                                       hintText: "hello@gmail.com",
@@ -158,8 +147,19 @@ class _SignUpOneState extends State<SignUpOne> {
                                       filled: true,
                                     ),
                                   ),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                    child: Text(
+                                      _errorMessage,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(
-                                    height: 8,
+                                    height: 5,
                                   ),
                                   Text(
                                     "Password",
@@ -169,9 +169,15 @@ class _SignUpOneState extends State<SignUpOne> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    height: 8,
+                                    height: 5,
                                   ),
                                   TextField(
+                                    onChanged: (value) {
+                                      signUpController.setPassword(value);
+                                    },
+                                    onSubmitted: (value) {
+                                      signUpController.setPassword(value);
+                                    },
                                     obscureText: true,
                                     controller: passwordController.value,
                                     cursorColor: HexColor("#4f4f4f"),
@@ -193,7 +199,7 @@ class _SignUpOneState extends State<SignUpOne> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    height: 8,
+                                    height: 5,
                                   ),
                                   MyButton(
                                       buttonText: 'Proceed',
@@ -255,5 +261,21 @@ class _SignUpOneState extends State<SignUpOne> {
         ),
       ),
     );
+  }
+
+  void validateEmail(String val) {
+    if (val.isEmpty) {
+      setState(() {
+        _errorMessage = "Email can not be empty";
+      });
+    } else if (!EmailValidator.validate(val, true)) {
+      setState(() {
+        _errorMessage = "Invalid Email Address";
+      });
+    } else {
+      setState(() {
+        _errorMessage = "";
+      });
+    }
   }
 }
