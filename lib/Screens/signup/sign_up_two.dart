@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:login/Screens/signup/sign_up_three.dart';
@@ -12,6 +13,9 @@ class SignUpTwo extends StatefulWidget {
 }
 
 class _SignUpTwoState extends State<SignUpTwo> {
+  final mobileNumberController = TextEditingController().obs;
+  final nameController = TextEditingController().obs;
+  final collegeNameContoller = TextEditingController().obs;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -65,10 +69,11 @@ class _SignUpTwoState extends State<SignUpTwo> {
                                 height: 8,
                               ),
                               TextField(
+                                controller: mobileNumberController.value,
                                 keyboardType: TextInputType.number,
                                 cursorColor: HexColor("#4f4f4f"),
                                 decoration: InputDecoration(
-                                  hintText: "+911234567890",
+                                  hintText: "1234567890",
                                   fillColor: HexColor("#f0f3f1"),
                                   contentPadding:
                                       const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -94,6 +99,7 @@ class _SignUpTwoState extends State<SignUpTwo> {
                                 height: 8,
                               ),
                               TextField(
+                                controller: nameController.value,
                                 cursorColor: HexColor("#4f4f4f"),
                                 decoration: InputDecoration(
                                   hintText: "Jack Smith",
@@ -122,6 +128,7 @@ class _SignUpTwoState extends State<SignUpTwo> {
                                 height: 8,
                               ),
                               TextField(
+                                controller: collegeNameContoller.value,
                                 cursorColor: HexColor("#4f4f4f"),
                                 decoration: InputDecoration(
                                   hintText: "ABC College",

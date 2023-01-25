@@ -1,11 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:login/Screens/login/login.dart';
 import 'package:login/Screens/signup/sign_up_two.dart';
 import 'package:login/components/my_button.dart';
+import 'package:login/controller/sign_up_controller.dart';
 
 List<String> list = <String>['Student', 'Teacher', 'Alumni'];
 
@@ -17,32 +18,34 @@ class SignUpOne extends StatefulWidget {
 }
 
 class _SignUpOneState extends State<SignUpOne> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  late String dropDownController;
+  final emailController = TextEditingController().obs;
+  final passwordController = TextEditingController().obs;
+  SignUpController signUpController = Get.put(SignUpController());
+
   Future signUserUp() async {
     // create user
 
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text);
+        email: emailController.string, password: passwordController.string);
 
     //add user details
-    addUserDetails(
-        dropDownController, emailController.text, passwordController.text);
+    // addUserDetails(
+    //     dropDownController, emailController.string, passwordController.string);
   }
 
-  Future addUserDetails(String dropDown, String email, String password) async {
-    await FirebaseFirestore.instance.collection("user").add({
-      "userType": dropDown,
-      "email": email,
-      "password": password,
-    });
-  }
+  // Future addUserDetails(String dropDown, String email, String password) async {
+  //   await FirebaseFirestore.instance.collection("user").add({
+  //     "userType": dropDown,
+  //     "email": email,
+  //     "password": password,
+  //   });
+  // }
 
   String dropdownValue = list.first;
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(signUpController.userType);
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -112,8 +115,7 @@ class _SignUpOneState extends State<SignUpOne> {
                                     onChanged: (String? value) {
                                       setState(() {
                                         dropdownValue = value!;
-                                        dropDownController = dropdownValue;
-                                        debugPrint(dropDownController);
+                                        signUpController.setUserType(value);
                                       });
                                     },
                                     items: list.map<DropdownMenuItem<String>>(
@@ -138,7 +140,7 @@ class _SignUpOneState extends State<SignUpOne> {
                                     height: 8,
                                   ),
                                   TextField(
-                                    controller: emailController,
+                                    controller: emailController.value,
                                     cursorColor: HexColor("#4f4f4f"),
                                     decoration: InputDecoration(
                                       hintText: "hello@gmail.com",
@@ -171,7 +173,7 @@ class _SignUpOneState extends State<SignUpOne> {
                                   ),
                                   TextField(
                                     obscureText: true,
-                                    controller: passwordController,
+                                    controller: passwordController.value,
                                     cursorColor: HexColor("#4f4f4f"),
                                     decoration: InputDecoration(
                                       hintText: "*************",
