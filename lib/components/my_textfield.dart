@@ -9,13 +9,15 @@ class MyTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final Icon prefixIcon;
+  final Function()? onChanged;
 
   const MyTextField(
       {super.key,
       required this.controller,
       required this.hintText,
       required this.obscureText,
-      required this.prefixIcon});
+      required this.prefixIcon,
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {
