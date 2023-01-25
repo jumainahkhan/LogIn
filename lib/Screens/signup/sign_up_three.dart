@@ -53,13 +53,6 @@ class _SignUpThreeState extends State<SignUpThree> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Admission Year/ Pass Out year",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  color: HexColor("#8d8d8d"),
-                                ),
-                              ),
                               const SizedBox(
                                 height: 8,
                               ),
