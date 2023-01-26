@@ -1,8 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
+
+import 'package:login/models/file_model.dart';
 
 class SignUpController extends GetxController {
+  static SignUpController get instance => Get.find();
+  FileModel? _imageFile;
+  FileModel? get imageFile => _imageFile;
+  void setImageFile(FileModel? file) {
+    _imageFile = file;
+    debugPrint("Updated ImageFile: ${imageFile!.filename}");
+    update();
+  }
+
+  FileModel? _resumeFile;
+  FileModel? get resumeFile => _resumeFile;
+  void setResumeFile(FileModel? file) {
+    _resumeFile = file;
+    debugPrint("Updated ResumeFile: ${resumeFile!.filename}");
+    update();
+  }
+
   String? _userType = "Student";
   String? get userType => _userType;
   void setUserType(String? text) {
@@ -78,5 +99,37 @@ class SignUpController extends GetxController {
       "admissionYear": admissionYear,
       "passOutYear": passOutYear,
     });
+    uploadImageFile();
+    uploadResumeFile();
+  }
+
+  Future uploadImageFile() async {
+    await FirebaseStorage.instance
+        .ref('files/${imageFile!.filename}')
+        .putData(imageFile!.fileBytes);
+  }
+
+  Future uploadResumeFile() async {
+    await FirebaseStorage.instance
+        .ref('files/${resumeFile!.filename}')
+        .putData(resumeFile!.fileBytes);
+  }
+
+  Future<bool> registerUser(String email, String password) async {
+    try {
+      var response = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      return true;
+    } catch (error) {
+      if (error is FirebaseAuthException) {
+        Get.showSnackbar(GetSnackBar(
+          message: error.toString(),
+        ));
+      }
+    }
+    return false;
   }
 }
