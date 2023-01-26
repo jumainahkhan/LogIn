@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:login/components/my_button.dart';
 import 'package:login/components/my_textfield.dart';
-import 'package:login/screens/signup/components/sign_up_body.dart';
 import 'package:login/screens/signup/sign_up.dart';
 
 class LoginBodyScreen extends StatefulWidget {
