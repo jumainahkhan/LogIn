@@ -1,17 +1,23 @@
 # login
 
-A new Flutter project.
+Login and Signup Page with Firebase and Cloud Firestore.
 
-## Getting Started
+## About
 
-This project is a starting point for a Flutter application.
+Login Page implemented with Firebase Authentication. 
+User Sign Up details stored using Cloud Firestore. 
+Image and Resume of User stored using Firebase Storage.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Screenshots
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# LogIn
+
+| Splash Screen                                   | Log In                                    |
+|:-----------------------------------------------:|:-----------------------------------------:|
+| ![Splash Screen](Screenshots/Splash Screen.png) | ![Log In](Screenshots/Log In.png)         |
+
+
+
+| SignUp Flow1                                 | SignUp Flow2                                   | SignUp Flow3                               |
+|:--------------------------------------------:|:------------------------------------------:| :-----------------------------------------:|
+| ![SignUp Flow1](Screenshots/SignUp Flow1.png)   | ![SignUp Flow2](Screenshots/SignUp Flow2.png)      | ![SignUp Flow3](Screenshots/SignUp Flow3.png) |
