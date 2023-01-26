@@ -12,12 +12,18 @@ Image and Resume of User stored using Firebase Storage.
 ### Screenshots
 
 
-| Splash Screen                                   | Log In                                    |
+| SplashScreen                                   | LogIn                                    |
 |:-----------------------------------------------:|:-----------------------------------------:|
-| ![Splash Screen](Screenshots/Splash Screen.png) | ![Log In](Screenshots/Log In.png)         |
+| ![SplashScreen](Screenshots/SplashScreen.png) | ![LogIn](Screenshots/LogIn.png)         |
 
 
 
-| SignUp Flow1                                 | SignUp Flow2                                   | SignUp Flow3                               |
+| SignUpFlow1                                 | SignUpFlow2                                   | SignUpFlow3                               |
 |:--------------------------------------------:|:------------------------------------------:| :-----------------------------------------:|
-| ![SignUp Flow1](Screenshots/SignUp Flow1.png)   | ![SignUp Flow2](Screenshots/SignUp Flow2.png)      | ![SignUp Flow3](Screenshots/SignUp Flow3.png) |
+| ![SignUpFlow1](Screenshots/SignUpFlow1.png)   | ![SignUpFlow2](Screenshots/SignUpFlow2.png)  | ![SignUpFlow3](Screenshots/SignUpFlow3.png) |
+
+
+
+| HomeScreen                                   | 
+|:-----------------------------------------------:|
+| ![HomeScreen](Screenshots/HomeScreen.png) | 
