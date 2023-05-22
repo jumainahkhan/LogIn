@@ -22,6 +22,8 @@ dependencies:
   get: ^4.6.5
   google_fonts: ^3.0.1
   hexcolor: ^3.0.1
+  persistent_bottom_nav_bar: ^5.0.2
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_lints: ^2.0.0
