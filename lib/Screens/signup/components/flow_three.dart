@@ -11,7 +11,7 @@ import 'package:login/controller/sign_up_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:login/models/file_model.dart';
 
-import '../../../screens/homepage/home_page.dart';
+import '../../homepage/home_page.dart';
 
 class SignUpThree extends StatefulWidget {
   const SignUpThree({super.key});

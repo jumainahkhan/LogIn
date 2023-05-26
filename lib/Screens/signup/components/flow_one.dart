@@ -3,12 +3,13 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-import 'package:login/screens/login/login.dart';
 // ignore: unused_import
 import 'package:login/components/my_button.dart';
 import 'package:login/controller/flow_controller.dart';
 import 'package:login/controller/sign_up_controller.dart';
 import 'package:email_validator/email_validator.dart';
+
+import '../../login/login.dart';
 
 List<String> list = <String>['Student', 'Teacher', 'Alumni'];
 

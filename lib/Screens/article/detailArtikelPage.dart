@@ -1,12 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:login/Screens/account/akunPage.dart';
-import 'package:login/Screens/homepage/components/home_page_body.dart';
-import 'package:login/Screens/article/artikelPage.dart';
-import 'package:provider/provider.dart';
-import 'package:login/models/artikelProvider.dart';
-
-import 'addArtikelPage.dart';
-import 'detailArtikelPage.dart';
 
 class DetailArtikelPage extends StatefulWidget {
   final String id;
@@ -17,9 +10,39 @@ class DetailArtikelPage extends StatefulWidget {
 }
 
 class _DetailArtikelPageState extends State<DetailArtikelPage> {
+  DocumentSnapshot? _articleSnapshot;
+  @override
+  void initState() {
+    super.initState();
+    // Mengambil data artikel dari Firestore
+    _fetchArticle();
+  }
+
+  Future<void> _fetchArticle() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('koleksi')
+          .doc(widget.id)
+          .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          _articleSnapshot = snapshot;
+        });
+      } else {
+        print('error');
+        // Artikel tidak ditemukan
+        // Tampilkan pesan atau navigasikan ke halaman lain
+      }
+    } catch (e) {
+      print(e);
+      // Error saat mengambil data artikel
+      // Tampilkan pesan atau tindakan yang sesuai
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final article = Provider.of<artikel>(context).selectById(widget.id);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -40,7 +63,7 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
               MainAxisAlignment.spaceBetween, // memberi spasi antar widget
           children: [
             Icon(Icons.library_books_rounded, size: 40),
-            Text('Detail Article'),
+            Text(_articleSnapshot?['judul'] ?? ''),
             SizedBox(
               width: 100,
             ),
@@ -59,7 +82,8 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
                     bottomLeft: Radius.circular(20),
                     bottomRight: Radius.circular(20)),
                 child: Image.network(
-                  article.image,
+                  _articleSnapshot?['imageUrl'] ??
+                      'https://firebasestorage.googleapis.com/v0/b/health-5f252.appspot.com/o/images%2F2023-05-26%2022%3A44%3A10.930239.png?alt=media&token=9c55f402-c174-498b-bef1-35b364f6f55c',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -71,7 +95,7 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    article.title,
+                    'Deskripsi',
                     style: const TextStyle(
                       fontSize: 35,
                       fontWeight: FontWeight.bold,
@@ -90,7 +114,7 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
               height: 200,
               width: 450,
               child: Text(
-                article.description,
+                _articleSnapshot?['deskripsi'] ?? '',
                 style: const TextStyle(
                   fontSize: 24,
                 ),

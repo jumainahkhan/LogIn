@@ -1,13 +1,15 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:login/Screens/account/akunPage.dart';
-import 'package:login/Screens/homepage/components/home_page_body.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:login/Screens/article/artikelPage.dart';
 import 'package:provider/provider.dart';
 import 'package:login/models/artikelProvider.dart';
-
-import 'addArtikelPage.dart';
-import 'detailArtikelPage.dart';
 
 class AddArticlePage extends StatefulWidget {
   const AddArticlePage({super.key});
@@ -22,22 +24,70 @@ class _AddArticlePageState extends State<AddArticlePage> {
   final TextEditingController _title = TextEditingController();
   final TextEditingController _description = TextEditingController();
   final TextEditingController _comments = TextEditingController();
-  final TextEditingController _imageUrl = TextEditingController();
+  String? _imageUrl;
+  File? _imageFile;
+  final _storage = FirebaseStorage.instance;
+  final _articleCollection = FirebaseFirestore.instance.collection('koleksi');
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedImage = await ImagePicker().getImage(source: source);
+    if (pickedImage != null) {
+      setState(() {
+        _imageFile = File(pickedImage.path);
+      });
+    }
+  }
 
-  Future<String> _addArticle(title, description, imageUrl) {
-    return Future.delayed(const Duration(milliseconds: 2250)).then((_) async {
-      try {
-        String comments = '';
-        await Provider.of<artikel>(context, listen: false).addArticle(
-          imageUrl,
-          title,
-          description,
-          comments,
-        );
-      } catch (e) {
-        return "An Errorerror occurred: ${e.toString()}";
+  // Fungsi untuk menyimpan data ke Firebase Firestore
+  Future<void> _saveData() async {
+    try {
+      if (_formKey.currentState!.validate()) {
+        // Menyimpan data judul dan deskripsi dari TextFormField
+        String judul = _title.text;
+        String deskripsi = _description.text;
+
+        // Mengecek apakah telah dipilih gambar
+        if (_imageFile != null) {
+          // Menyimpan gambar ke Firebase Storage
+          String imageUrl = await _uploadImageToStorage(_imageFile!);
+
+          // Membuat document baru dengan data yang diisi
+          await _addDataToFirestore(judul, deskripsi, imageUrl);
+
+          // Menampilkan notifikasi sukses menggunakan Get.snackbar
+          Get.snackbar('Sukses', 'Data berhasil ditambahkan');
+          Get.off(ArtikelPage());
+        } else {
+          // Menampilkan notifikasi error jika gambar tidak dipilih
+          Get.snackbar('Error', 'Mohon pilih gambar terlebih dahulu');
+        }
       }
-      return 'Add Article Success';
+    } catch (e) {
+      // Menampilkan notifikasi error menggunakan Get.snackbar
+      Get.snackbar('Error', 'Terjadi kesalahan saat menambahkan data');
+    }
+  }
+
+  Future<String> _uploadImageToStorage(File imageFile) async {
+    // Mendapatkan referensi pada Firebase Storage
+    Reference storageRef = _storage.ref().child('images/${DateTime.now()}.png');
+
+    // Mengunggah gambar ke Firebase Storage
+    TaskSnapshot snapshot = await storageRef.putFile(imageFile);
+
+    // Mendapatkan URL gambar yang diunggah
+    String imageUrl = await snapshot.ref.getDownloadURL();
+
+    return imageUrl;
+  }
+
+  Future<void> _addDataToFirestore(
+      String judul, String deskripsi, String imageUrl) async {
+    // Membuat document baru dengan data yang diisi
+    await _articleCollection.add({
+      'uid': FirebaseAuth.instance.currentUser!.uid,
+      'judul': judul,
+      'deskripsi': deskripsi,
+      'imageUrl': imageUrl,
     });
   }
 
@@ -120,18 +170,58 @@ class _AddArticlePageState extends State<AddArticlePage> {
                       onSaved: (value) {},
                     ),
                     TextFormField(
-                      controller: _imageUrl,
-                      decoration: const InputDecoration(
+                      controller: _imageUrl != null
+                          ? TextEditingController(text: _imageUrl)
+                          : null,
+                      readOnly: true,
+                      decoration: InputDecoration(
                         icon: Icon(
                           Icons.image,
                           color: Colors.green,
                         ),
                         labelText: 'Masukkan image terkait artikel',
                         errorStyle: TextStyle(color: Colors.grey),
+                        suffixIcon: _imageFile != null
+                            ? Image.file(
+                                _imageFile!,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Pilih Gambar'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: Icon(Icons.photo_library),
+                                  title: const Text('Galeri'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _pickImage(ImageSource.gallery);
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.camera_alt),
+                                  title: const Text('Kamera'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _pickImage(ImageSource.camera);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                       validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Mohon Masukkan image terkait artikel ';
+                        if (value == null || value.isEmpty) {
+                          return 'Mohon Masukkan image terkait artikel';
                         }
                         return null;
                       },
@@ -142,24 +232,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
                       child: ElevatedButton(
                         autofocus: true,
                         onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            _addArticle(
-                              _title.text,
-                              _description.text,
-                              _imageUrl.text,
-                            ).then((response) {
-                              if (response == 'Add Article Success') {
-                                return Navigator.pop(context);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(response),
-                                  ),
-                                );
-                              }
-                            });
-                          }
+                          _saveData();
                         },
                         style: ButtonStyle(
                           backgroundColor:

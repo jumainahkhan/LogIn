@@ -1,8 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:login/Screens/account/akunPage.dart';
 import 'package:login/Screens/homepage/components/home_page_body.dart';
-import 'package:login/Screens/article/artikelPage.dart';
-import 'package:provider/provider.dart';
 import 'package:login/models/artikelProvider.dart';
 
 import 'addArtikelPage.dart';
@@ -18,13 +17,10 @@ class ArtikelPage extends StatefulWidget {
 class _ArtikelPageState extends State<ArtikelPage> {
   void initState() {
     super.initState();
-    Provider.of<artikel>(context, listen: false).getAllArticle();
   }
 
   @override
   Widget build(BuildContext context) {
-    final article = Provider.of<artikel>(context);
-    final allArticle = article.allArticle;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -77,49 +73,73 @@ class _ArtikelPageState extends State<ArtikelPage> {
             ),
             SizedBox(height: 8),
             Container(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: allArticle.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(
-                      children: [
-                        Text(
-                          allArticle[index].title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 10),
-                        ),
-                        Container(
-                          width: 150,
-                          height: 150,
-                          margin: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                allArticle[index].image,
-                              ),
-                              fit: BoxFit.cover,
+              height: 200,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('koleksi')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Terjadi kesalahan');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+
+                  // Mengambil data artikel dari snapshot
+                  List<DocumentSnapshot> articles = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: articles.length,
+                    itemBuilder: (context, index) {
+                      // Mengambil data judul dan imageUrl dari artikel
+                      String judul = articles[index]['judul'];
+                      String imageUrl = articles[index]['imageUrl'];
+
+                      return Column(
+                        children: [
+                          Text(
+                            judul,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10,
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey[300],
                           ),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
+                          Container(
+                            width: 150,
+                            height: 150,
+                            margin: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(imageUrl),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey[300],
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
                                     builder: (context) => DetailArtikelPage(
-                                          id: allArticle[index].id,
-                                        )),
-                              );
-                            },
+                                      id: articles[index].id,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                )),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
             SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),

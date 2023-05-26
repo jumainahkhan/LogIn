@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:login/screens/signup/components/flow_one.dart';
-import 'package:login/screens/signup/components/flow_three.dart';
-import 'package:login/screens/signup/components/flow_two.dart';
 import 'package:login/controller/flow_controller.dart';
+
+import 'flow_one.dart';
+import 'flow_three.dart';
+import 'flow_two.dart';
 
 class SignUpBodyScreen extends StatefulWidget {
   const SignUpBodyScreen({super.key});
