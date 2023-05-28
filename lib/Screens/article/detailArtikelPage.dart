@@ -4,13 +4,17 @@ import 'package:flutter/material.dart';
 class DetailArtikelPage extends StatefulWidget {
   final String id;
 
-  const DetailArtikelPage({super.key, required this.id});
+  const DetailArtikelPage({Key? key, required this.id}) : super(key: key);
   @override
   State<DetailArtikelPage> createState() => _DetailArtikelPageState();
 }
 
 class _DetailArtikelPageState extends State<DetailArtikelPage> {
   DocumentSnapshot? _articleSnapshot;
+
+  bool isLiked = false; // status like
+  bool isSaved = false; // status save
+
   @override
   void initState() {
     super.initState();
@@ -30,14 +34,10 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
           _articleSnapshot = snapshot;
         });
       } else {
-        print('error');
-        // Artikel tidak ditemukan
-        // Tampilkan pesan atau navigasikan ke halaman lain
+        print('Artikel tidak ditemukan');
       }
     } catch (e) {
-      print(e);
-      // Error saat mengambil data artikel
-      // Tampilkan pesan atau tindakan yang sesuai
+      print('Error: $e');
     }
   }
 
@@ -45,83 +45,83 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        flexibleSpace: Container(
-          width: 200,
-          height: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(12),
-                bottomRight: Radius.circular(12)),
-            gradient:
-                LinearGradient(colors: [Colors.green, Colors.greenAccent]),
-          ),
+        title: Text(
+          _articleSnapshot?['judul'] ?? '',
+          style: TextStyle(color: Colors.black),
         ),
-        title: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween, // memberi spasi antar widget
-          children: [
-            Icon(Icons.library_books_rounded, size: 40),
-            Text(_articleSnapshot?['judul'] ?? ''),
-            SizedBox(
-              width: 100,
+        backgroundColor: Colors.green,
+        actions: [
+          IconButton(
+            icon: Icon(
+              isSaved ? Icons.bookmark : Icons.bookmark_border,
+              color: Colors.black,
             ),
-          ],
-        ),
+            onPressed: () {
+              setState(() {
+                isSaved = !isSaved;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              // navigasi ke halaman edit
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(12.0),
-              width: double.infinity,
-              height: 250,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20)),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
                 child: Image.network(
                   _articleSnapshot?['imageUrl'] ??
                       'https://firebasestorage.googleapis.com/v0/b/health-5f252.appspot.com/o/images%2F2023-05-26%2022%3A44%3A10.930239.png?alt=media&token=9c55f402-c174-498b-bef1-35b364f6f55c',
                   fit: BoxFit.cover,
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              child: Row(
+              SizedBox(height: 16),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Deskripsi',
-                    style: const TextStyle(
-                      fontSize: 35,
+                    style: TextStyle(
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  IconButton(
+                    icon: Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isLiked = !isLiked;
+                      });
+                    },
+                  ),
                 ],
               ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.all(15),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-                color: Colors.greenAccent,
-              ),
-              height: 200,
-              width: 450,
-              child: Text(
+              SizedBox(height: 16),
+              Text(
                 _articleSnapshot?['deskripsi'] ?? '',
-                style: const TextStyle(
-                  fontSize: 24,
+                style: TextStyle(
+                  fontSize: 18,
                 ),
-                maxLines: 5,
               ),
-            ),
-          ],
+              // Tempat untuk fitur komentar
+            ],
+          ),
         ),
       ),
     );

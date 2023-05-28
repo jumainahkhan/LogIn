@@ -15,12 +15,12 @@ dependencies:
   file_picker: ^5.2.5
   firebase_auth: ^4.2.5
   firebase_core: ^2.4.1
-  firebase_storage: ^11.2.1
+  firebase_storage: ^11.0.10
   flutter:
     sdk: flutter
 
   get: ^4.6.5
-  google_fonts: ^4.0.4
+  google_fonts: ^3.0.1
   hexcolor: ^3.0.1
   persistent_bottom_nav_bar: ^5.0.2
   provider: ^6.0.5
