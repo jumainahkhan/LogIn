@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:login/Screens/article/editartikelPage.dart';
+
+import '../homepage/home_page.dart';
 
 class DetailArtikelPage extends StatefulWidget {
   final String id;
@@ -41,6 +44,13 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
     }
   }
 
+  Future<void> _delete() async {
+    await FirebaseFirestore.instance
+        .collection('koleksi')
+        .doc(widget.id)
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,12 +73,25 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
             },
           ),
           IconButton(
+            onPressed: () {
+              _showDeleteConfirmationDialog();
+            },
+            icon: Icon(Icons.delete),
+            color: Colors.black,
+          ),
+          IconButton(
             icon: Icon(
               Icons.edit,
               color: Colors.black,
             ),
             onPressed: () {
               // navigasi ke halaman edit
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        EditArtikelPage(documentId: widget.id)),
+              );
             },
           ),
         ],
@@ -125,5 +148,39 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
         ),
       ),
     );
+  }
+
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Konfirmasi Hapus'),
+            content: Text('Apakah Anda yakin ingin menghapus data ini?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup dialog
+                },
+                child: Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () {
+                  _delete(); // Panggil fungsi untuk menghapus data
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  );
+                },
+                child: Text(
+                  'Hapus',
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }
