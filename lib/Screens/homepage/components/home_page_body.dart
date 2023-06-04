@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login/Screens/account/akunPage.dart';
 import 'package:login/Screens/homepage/components/home_page_body.dart';
@@ -47,7 +48,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
             Icon(Icons.tips_and_updates_outlined, size: 40),
             Text('Jelajah'),
             SizedBox(
-              width: 220,
+              width: 100,
             ),
             GestureDetector(
               onTap: () {
@@ -114,6 +115,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                       // Mengambil data judul dan imageUrl dari artikel
                       String judul = articles[index]['judul'];
                       String imageUrl = articles[index]['imageUrl'];
+                      print(imageUrl);
 
                       return ListTile(
                         onTap: () {
@@ -194,6 +196,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
               leading: Icon(Icons.logout),
               title: Text('Log Out'),
               onTap: () {
+                FirebaseAuth.instance.signOut();
                 //fungsi log out firebase
               },
             ),

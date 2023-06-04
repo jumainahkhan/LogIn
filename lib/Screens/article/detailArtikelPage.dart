@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:login/Screens/article/editartikelPage.dart';
-
-import '../homepage/home_page.dart';
+import 'package:login/Screens/homepage/components/home_page_body.dart';
 
 class DetailArtikelPage extends StatefulWidget {
   final String id;
@@ -17,6 +16,8 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
 
   bool isLiked = false; // status like
   bool isSaved = false; // status save
+
+  final TextEditingController _commentController = TextEditingController();
 
   @override
   void initState() {
@@ -49,6 +50,22 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
         .collection('koleksi')
         .doc(widget.id)
         .delete();
+  }
+
+  Future<void> _sendComment() async {
+    if (_commentController.text.isNotEmpty) {
+      FirebaseFirestore.instance
+          .collection('koleksi')
+          .doc(widget.id)
+          .collection('komentar')
+          .add({
+        'komentar': _commentController.text,
+        'timestamp': Timestamp.now(),
+        // Anda juga mungkin ingin menyimpan informasi tambahan seperti pengguna yang mengirim komentar
+      });
+
+      _commentController.clear();
+    }
   }
 
   @override
@@ -142,7 +159,56 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
                   fontSize: 18,
                 ),
               ),
-              // Tempat untuk fitur komentar
+              TextField(
+                controller: _commentController,
+                decoration: InputDecoration(
+                  labelText: 'Tambahkan komentar',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: _sendComment,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Komentar',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('koleksi')
+                    .doc(widget.id)
+                    .collection('komentar')
+                    .orderBy('timestamp', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: snapshot.data?.docs.length ?? 0,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot comment = snapshot.data!.docs[index];
+
+                      return ListTile(
+                        title: Text(comment['komentar']),
+                        subtitle:
+                            Text(comment['timestamp'].toDate().toString()),
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -169,7 +235,8 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
                   _delete(); // Panggil fungsi untuk menghapus data
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const HomeScreenBody()),
                   );
                 },
                 child: Text(
