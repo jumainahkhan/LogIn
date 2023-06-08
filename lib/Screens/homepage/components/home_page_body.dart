@@ -7,6 +7,7 @@ import 'package:login/models/artikelProvider.dart';
 import 'package:login/Screens/article/artikelPage.dart';
 import 'package:login/Screens/article/addArtikelPage.dart';
 import 'package:login/Screens/article/detailArtikelPage.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreenBody extends StatefulWidget {
   const HomeScreenBody({Key? key}) : super(key: key);
@@ -67,6 +68,40 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Menambahkan carousel di sini
+            StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('koleksi').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator();
+                }
+                return CarouselSlider(
+                  options: CarouselOptions(
+                    aspectRatio: 1.5,
+                    autoPlay: true,
+                  ),
+                  items: snapshot.data!.docs.map((doc) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Card(
+                            child: Column(
+                              children: [
+                                Image.network(doc['imageUrl']),
+                                Text(doc['judul']),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+                );
+              },
+            ),
             TextField(
               controller: _searchController,
               onChanged: (value) {
@@ -140,7 +175,8 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                           ),
                         ),
                         title: Text(judul),
-                        subtitle: Text('Author: '), // Replace with author
+                        subtitle: Text(
+                            'Author: '), // masukin nama author yang buat artikel nya
                       );
                     },
                   );
@@ -155,14 +191,11 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text("User Name"), // Replace with user name
-              accountEmail: Text("User Status"), // Replace with user status
+              accountName: Text("User Name"), // Masukin nama user
+              accountEmail: Text(
+                  "User Status"), // Masukin status user (pembaca / penulis)
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.orange,
-                child: Text(
-                  "U", // Replace with the first letter of the user name
-                  style: TextStyle(fontSize: 40.0),
-                ),
               ),
             ),
             ListTile(
@@ -179,12 +212,13 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
               leading: Icon(Icons.bookmark),
               title: Text('Bookmark'),
               onTap: () {
-                //fungsi bookmark
+                //fungsi bookmark buat nge save artikel yang udh di bookmark
               },
             ),
             ListTile(
               leading: Icon(Icons.settings),
-              title: Text('Settings'),
+              title: Text(
+                  'Settings'), //masuk ke halaman setting profile buat edit data user
               onTap: () {
                 Navigator.pushReplacement(
                   context,

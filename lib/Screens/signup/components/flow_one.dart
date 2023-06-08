@@ -11,7 +11,7 @@ import 'package:email_validator/email_validator.dart';
 
 import '../../login/login.dart';
 
-List<String> list = <String>['Student', 'Teacher', 'Alumni'];
+List<String> list = <String>['Pembaca', 'Penulis'];
 
 class SignUpOne extends StatefulWidget {
   const SignUpOne({super.key});

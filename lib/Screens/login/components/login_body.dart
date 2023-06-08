@@ -117,7 +117,7 @@ class _LoginBodyScreenState extends State<LoginBodyScreen> {
                                       validateEmail(emailController.text);
                                     }),
                                     controller: emailController,
-                                    hintText: "hello@gmail.com",
+                                    hintText: "masukkan email anda",
                                     obscureText: false,
                                     prefixIcon: const Icon(Icons.mail_outline),
                                   ),
