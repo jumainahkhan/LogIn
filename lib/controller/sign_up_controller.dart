@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:login/Screens/homepage/home_page.dart';
 
 import 'package:login/models/file_model.dart';
 
@@ -96,17 +97,25 @@ class SignUpController extends GetxController {
       "password": password,
       "mobileNumber": mobileNumber,
       "collegeName": collegeName,
-      "admissionYear": admissionYear,
-      "passOutYear": passOutYear,
+    }).then((docRef) async {
+      String imageUrl = await uploadImageFile(); // Upload image and get URL
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      await docRef.update({
+        'uid': uid,
+        "imageUrl": imageUrl
+      }); // Add imageUrl to the user document
+      uploadResumeFile();
     });
-    uploadImageFile();
-    uploadResumeFile();
+    await Get.offAll(const HomeScreen());
   }
 
-  Future uploadImageFile() async {
-    await FirebaseStorage.instance
+  Future<String> uploadImageFile() async {
+    var uploadTask = await FirebaseStorage.instance
         .ref('files/${imageFile!.filename}')
         .putData(imageFile!.fileBytes);
+
+    var downloadURL = await uploadTask.ref.getDownloadURL();
+    return downloadURL.toString(); // Return the download URL
   }
 
   Future uploadResumeFile() async {

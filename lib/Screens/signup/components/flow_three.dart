@@ -21,6 +21,7 @@ class SignUpThree extends StatefulWidget {
 }
 
 class _SignUpThreeState extends State<SignUpThree> {
+  var user = FirebaseAuth.instance.currentUser!.uid;
   SignUpController signUpController =
       Get.put(SignUpController(), permanent: false);
   Future signUserUp() async {
@@ -29,6 +30,12 @@ class _SignUpThreeState extends State<SignUpThree> {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: signUpController.email.toString(),
         password: signUpController.password.toString());
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print(FirebaseAuth.instance.currentUser!.uid);
   }
 
   String basename(String path) => basename(path);
@@ -289,25 +296,7 @@ class _SignUpThreeState extends State<SignUpThree> {
                   ),
                   MyButton(
                     onPressed: () {
-                      if (signUpController.userType == 'Student' &&
-                              signUpController.imageFile != null &&
-                              signUpController.admissionYear != null ||
-                          signUpController.userType == 'Alumni' &&
-                              signUpController.imageFile != null &&
-                              signUpController.passOutYear != null ||
-                          signUpController.userType == 'Teacher' &&
-                              signUpController.imageFile != null) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
-                        signUserUp();
-                        signUpController.uploadImageFile();
-                      } else {
-                        Get.snackbar("Error", "Please fill all the fields");
-                      }
-
-                      signUpController.uploadResumeFile();
+                      signUpController.postSignUpDetails();
                     },
                     buttonText: 'Submit',
                   ),

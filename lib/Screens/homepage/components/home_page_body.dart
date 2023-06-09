@@ -19,6 +19,7 @@ class HomeScreenBody extends StatefulWidget {
 class _HomeScreenBodyState extends State<HomeScreenBody> {
   String _searchKeyword = '';
   final TextEditingController _searchController = TextEditingController();
+  var user = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   void initState() {
@@ -190,13 +191,30 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text("User Name"), // Masukin nama user
-              accountEmail: Text(
-                  "User Status"), // Masukin status user (pembaca / penulis)
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.orange,
-              ),
+            StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('user')
+                  .where('uid', isEqualTo: user)
+                  .snapshots()
+                  .map((querySnapshot) => querySnapshot.docs.first),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var userData = snapshot.data!.data()
+                      as Map<String, dynamic>; // Cast to Map<String, dynamic>
+                  var name = userData['name'];
+                  var tipe = userData['userType'];
+                  var imageUrl = userData['imageUrl'];
+                  return UserAccountsDrawerHeader(
+                    accountName: Text(name),
+                    accountEmail: Text(tipe),
+                    currentAccountPicture: CircleAvatar(
+                      foregroundImage: NetworkImage(imageUrl),
+                    ),
+                  );
+                } else {
+                  return Text('Loading...');
+                }
+              },
             ),
             ListTile(
               leading: Icon(Icons.home),
