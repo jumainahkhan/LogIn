@@ -25,7 +25,7 @@ class _AkunPageState extends State<AkunPage> {
     if (docSnapshot.exists) {
       var userData = docSnapshot.data();
       setState(() {
-        username = userData!["username"];
+        username = userData!["name"];
         email = userData["email"];
         mobileNumber = userData["mobileNumber"];
         userType = userData["userType"];
@@ -37,52 +37,73 @@ class _AkunPageState extends State<AkunPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back), // Add this line to add back button
-          onPressed: () {
-            Navigator.pop(context); // Add this line to make back button work
-          },
-        ),
-        title: Text('Settings'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back), // Add this line to add back button
             onPressed: () {
-              // Put the function to handle settings here
+              Navigator.pop(context); // Add this line to make back button work
             },
-          )
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          ListTile(
-            leading: Icon(Icons.account_circle),
-            title: Text('Username'),
-            subtitle: Text(username ?? 'Loading...'),
           ),
-          ListTile(
-            leading: Icon(Icons.email),
-            title: Text('Email'),
-            subtitle: Text(email ?? 'Loading...'),
-          ),
-          ListTile(
-            leading: Icon(Icons.phone),
-            title: Text('Mobile Number'),
-            subtitle: Text(mobileNumber ?? 'Loading...'),
-          ),
-          ListTile(
-            leading: Icon(Icons.school),
-            title: Text('College Name'),
-            subtitle: Text(collegeName ?? 'Loading...'),
-          ),
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Text('User Type'),
-            subtitle: Text(userType ?? 'Loading...'),
-          ),
-        ],
-      ),
-    );
+          title: Text('Settings'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                // Put the function to handle settings here
+              },
+            )
+          ],
+        ),
+        body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('user')
+              .where('uid', isEqualTo: auth.currentUser!.uid)
+              .snapshots()
+              .map((querySnapshot) => querySnapshot.docs.first),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              var data = snapshot.data!.data();
+              var username = data['name'];
+              var email = data['email'];
+              var mobileNumber = data['mobileNumber'];
+              var collegeName = data['collegeName'];
+              var userType = data['userType'];
+
+              return ListView(
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.account_circle),
+                    title: Text('Username'),
+                    subtitle: Text(username ?? 'Loading...'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.email),
+                    title: Text('Email'),
+                    subtitle: Text(email ?? 'Loading...'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.phone),
+                    title: Text('Mobile Number'),
+                    subtitle: Text(mobileNumber ?? 'Loading...'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.school),
+                    title: Text('College Name'),
+                    subtitle: Text(collegeName ?? 'Loading...'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.person),
+                    title: Text('User Type'),
+                    subtitle: Text(userType ?? 'Loading...'),
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
+        ));
   }
 }
