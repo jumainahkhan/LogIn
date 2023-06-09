@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:login/Screens/homepage/components/home_page_body.dart'; // import halaman home
+import 'package:login/Screens/homepage/components/home_page_body.dart';
 
 class AddArticlePage extends StatefulWidget {
-  const AddArticlePage({super.key});
+  const AddArticlePage({Key? key}) : super(key: key);
 
   @override
   State<AddArticlePage> createState() => _AddArticlePageState();
@@ -21,43 +21,55 @@ class _AddArticlePageState extends State<AddArticlePage> {
 
   final TextEditingController _title = TextEditingController();
   final TextEditingController _description = TextEditingController();
-  final TextEditingController _imageUrl = TextEditingController();
 
+  File? _imageFile;
   final _storage = FirebaseStorage.instance;
   final _articleCollection = FirebaseFirestore.instance.collection('koleksi');
 
-  // Fungsi untuk menyimpan data ke Firebase Firestore
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+      }
+    });
+  }
+
+  Future<String> _uploadImageToFirebase() async {
+    if (_imageFile == null) {
+      throw Exception('No file selected');
+    }
+
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final ref = _storage.ref().child('images/$fileName');
+    await ref.putFile(_imageFile!);
+
+    return await ref.getDownloadURL();
+  }
+
   Future<void> _saveData() async {
     try {
       if (_formKey.currentState!.validate()) {
-        // Menyimpan data judul dan deskripsi dari TextFormField
         String judul = _title.text;
         String deskripsi = _description.text;
-        String imageUrl = _imageUrl.text;
 
-        // Membuat document baru dengan data yang diisi
-        await _addDataToFirestore(judul, deskripsi, imageUrl);
+        String imageUrl = await _uploadImageToFirebase();
 
-        // Menampilkan notifikasi sukses menggunakan Get.snackbar
+        await _articleCollection.add({
+          'uid': FirebaseAuth.instance.currentUser!.uid,
+          'judul': judul,
+          'deskripsi': deskripsi,
+          'imageUrl': imageUrl,
+        });
+
         Get.snackbar('Sukses', 'Data berhasil ditambahkan');
-        Get.off(
-            HomeScreenBody()); // Navigasi ke HomePage setelah klik tombol Save
+        Get.off(HomeScreenBody());
       }
     } catch (e) {
-      // Menampilkan notifikasi error menggunakan Get.snackbar
       Get.snackbar('Error', 'Terjadi kesalahan saat menambahkan data');
     }
-  }
-
-  Future<void> _addDataToFirestore(
-      String judul, String deskripsi, String imageUrl) async {
-    // Membuat document baru dengan data yang diisi
-    await _articleCollection.add({
-      'uid': FirebaseAuth.instance.currentUser!.uid,
-      'judul': judul,
-      'deskripsi': deskripsi,
-      'imageUrl': imageUrl,
-    });
   }
 
   @override
@@ -71,10 +83,12 @@ class _AddArticlePageState extends State<AddArticlePage> {
           height: 200,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(12),
-                bottomRight: Radius.circular(12)),
-            gradient:
-                LinearGradient(colors: [Colors.green, Colors.greenAccent]),
+              bottomLeft: Radius.circular(12),
+              bottomRight: Radius.circular(12),
+            ),
+            gradient: LinearGradient(
+              colors: [Colors.green, Colors.greenAccent],
+            ),
           ),
         ),
         title: Row(
@@ -82,9 +96,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
           children: [
             Icon(Icons.post_add_outlined, size: 40),
             Text('Add Artikel'),
-            SizedBox(
-              width: 180,
-            ),
+            SizedBox(width: 180),
           ],
         ),
       ),
@@ -101,10 +113,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
                     TextFormField(
                       controller: _title,
                       decoration: const InputDecoration(
-                        icon: Icon(
-                          Icons.title,
-                          color: Colors.brown,
-                        ),
+                        icon: Icon(Icons.title, color: Colors.brown),
                         labelText: 'Masukkan Judul Artikel',
                         errorStyle: TextStyle(color: Colors.grey),
                       ),
@@ -119,15 +128,12 @@ class _AddArticlePageState extends State<AddArticlePage> {
                       onSaved: (value) {},
                     ),
                     TextFormField(
-                      maxLength:
-                          1000, // mengubah batas maksimal kata menjadi 1000
+                      maxLength: 1000,
                       maxLengthEnforcement: MaxLengthEnforcement.enforced,
                       controller: _description,
                       decoration: const InputDecoration(
-                        icon: Icon(
-                          Icons.description_outlined,
-                          color: Colors.green,
-                        ),
+                        icon: Icon(Icons.description_outlined,
+                            color: Colors.green),
                         labelText: 'Masukkan deskripsi artikel tersebut',
                         errorStyle: TextStyle(color: Colors.grey),
                       ),
@@ -142,31 +148,20 @@ class _AddArticlePageState extends State<AddArticlePage> {
                       },
                       onSaved: (value) {},
                     ),
-                    TextFormField(
-                      controller: _imageUrl,
-                      decoration: InputDecoration(
-                        icon: Icon(
-                          Icons.image,
-                          color: Colors.green,
+                    SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        labelText: 'Masukkan URL gambar terkait artikel',
-                        errorStyle: TextStyle(color: Colors.grey),
-                        suffixIcon: _imageUrl.text.isNotEmpty
-                            ? Image.network(
-                                _imageUrl.text,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                              )
-                            : null,
+                        child: _imageFile != null
+                            ? Image.file(_imageFile!, fit: BoxFit.cover)
+                            : Icon(Icons.add_a_photo, color: Colors.grey),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Mohon Masukkan URL gambar terkait artikel';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {},
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(45, 8, 15, 8),

@@ -2,9 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login/Screens/account/akunPage.dart';
-import 'package:login/Screens/homepage/components/home_page_body.dart';
-import 'package:login/models/artikelProvider.dart';
-import 'package:login/Screens/article/artikelPage.dart';
 import 'package:login/Screens/article/addArtikelPage.dart';
 import 'package:login/Screens/article/detailArtikelPage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -19,11 +16,28 @@ class HomeScreenBody extends StatefulWidget {
 class _HomeScreenBodyState extends State<HomeScreenBody> {
   String _searchKeyword = '';
   final TextEditingController _searchController = TextEditingController();
-  var user = FirebaseAuth.instance.currentUser!.uid;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  late User user;
+  String? name, userType, imageUrl;
 
   @override
   void initState() {
     super.initState();
+    user = auth.currentUser!;
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    var docSnapshot = await firestore.collection("user").doc(user.uid).get();
+    if (docSnapshot.exists) {
+      var userData = docSnapshot.data();
+      setState(() {
+        name = userData!["name"];
+        userType = userData["userType"];
+        imageUrl = userData["imageUrl"];
+      });
+    }
   }
 
   @override
@@ -191,30 +205,12 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('user')
-                  .where('uid', isEqualTo: user)
-                  .snapshots()
-                  .map((querySnapshot) => querySnapshot.docs.first),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  var userData = snapshot.data!.data()
-                      as Map<String, dynamic>; // Cast to Map<String, dynamic>
-                  var name = userData['name'];
-                  var tipe = userData['userType'];
-                  var imageUrl = userData['imageUrl'];
-                  return UserAccountsDrawerHeader(
-                    accountName: Text(name),
-                    accountEmail: Text(tipe),
-                    currentAccountPicture: CircleAvatar(
-                      foregroundImage: NetworkImage(imageUrl),
-                    ),
-                  );
-                } else {
-                  return Text('Loading...');
-                }
-              },
+            UserAccountsDrawerHeader(
+              accountName: Text(name ?? 'Loading...'),
+              accountEmail: Text(userType ?? 'Loading...'),
+              currentAccountPicture: imageUrl != null
+                  ? CircleAvatar(backgroundImage: NetworkImage(imageUrl!))
+                  : CircleAvatar(backgroundColor: Colors.orange),
             ),
             ListTile(
               leading: Icon(Icons.home),
