@@ -249,7 +249,10 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
+            // Menampilkan header drawer yang berisi informasi profil pengguna
             UserProfileDrawerHeader(),
+
+            // Menu Home
             ListTile(
               leading: Icon(Icons.home),
               title: Text('Home'),
@@ -260,6 +263,8 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                 );
               },
             ),
+
+            // Menu Profile
             ListTile(
               leading: Icon(Icons.person),
               title: Text('Profile'),
@@ -270,6 +275,8 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                 );
               },
             ),
+
+            // Menu Logout
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),

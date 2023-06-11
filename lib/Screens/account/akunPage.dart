@@ -21,6 +21,7 @@ class _AkunPageState extends State<AkunPage> {
     _loadUserProfile();
   }
 
+  // Metode untuk mengambil dan memuat data profil pengguna dari Firestore
   Future<void> _loadUserProfile() async {
     var docSnapshot = await firestore.collection("user").doc(user.uid).get();
     if (docSnapshot.exists) {
@@ -35,6 +36,7 @@ class _AkunPageState extends State<AkunPage> {
     }
   }
 
+  // Metode untuk menampilkan dialog pengeditan dan menyimpan perubahan data profil
   void _showEditDialog(String field) {
     showDialog(
       context: context,
@@ -68,11 +70,12 @@ class _AkunPageState extends State<AkunPage> {
                         .doc(user.uid)
                         .update({field: value});
                     setState(() {
+                      // Memperbarui nilai bidang yang sesuai di state
                       switch (field) {
                         case 'name':
                           username = value;
                           break;
-                        case 'Email':
+                        case 'email':
                           email = value;
                           break;
                         case 'mobileNumber':
@@ -105,6 +108,7 @@ class _AkunPageState extends State<AkunPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // Menampilkan tombol kembali dan judul halaman
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -119,12 +123,13 @@ class _AkunPageState extends State<AkunPage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              // Put the function to handle settings here
+              // Metode yang akan dipanggil saat tombol pengaturan diklik
             },
-          )
+          ),
         ],
       ),
       body: StreamBuilder(
+        // StreamBuilder untuk mendapatkan data profil pengguna dari Firestore
         stream: FirebaseFirestore.instance
             .collection('user')
             .where('uid', isEqualTo: auth.currentUser!.uid)
@@ -141,11 +146,13 @@ class _AkunPageState extends State<AkunPage> {
 
             return ListView(
               children: <Widget>[
+                // Item daftar untuk setiap bidang profil pengguna
                 ListTile(
                   leading: Icon(Icons.account_circle),
                   title: Text('Username'),
                   subtitle: Text(username ?? 'Loading...'),
-                  onTap: () => _showEditDialog('name'),
+                  onTap: () => _showEditDialog(
+                      'name'), // Menampilkan dialog pengeditan saat item diklik
                 ),
                 ListTile(
                   leading: Icon(Icons.email),
