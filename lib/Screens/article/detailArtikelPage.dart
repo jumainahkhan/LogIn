@@ -15,6 +15,8 @@ class DetailArtikelPage extends StatefulWidget {
 
 class _DetailArtikelPageState extends State<DetailArtikelPage> {
   DocumentSnapshot? _articleSnapshot;
+  DocumentSnapshot? _userSnapshot;
+  User? user = FirebaseAuth.instance.currentUser;
 
   bool isLiked = false; // status like
   bool isSaved = false; // status save
@@ -58,22 +60,42 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
     // Get current user
     final user = FirebaseAuth.instance.currentUser;
 
-    if (_commentController.text.isNotEmpty && user != null) {
-      FirebaseFirestore.instance
-          .collection('koleksi')
-          .doc(widget.id)
-          .collection('komentar')
-          .add({
-        'komentar': _commentController.text,
-        'timestamp': Timestamp.now(),
+    if (user != null && _commentController.text.isNotEmpty) {
+      String username = '';
 
-        // You might also want to save additional information such as the user who posted the comment
-        'username':
-            user.displayName ?? 'Anonymous user', // add username to the comment
+      // Fetch user data from the collection
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(user.uid)
+          .get()
+          .then((snapshot) {
+        if (snapshot.exists) {
+          username = snapshot.data()?['name'];
+        } else {
+          print('User data not found');
+        }
+      }).catchError((error) {
+        print('Error fetching user data: $error');
       });
 
-      // Clear the text field
-      _commentController.clear();
+      if (username.isNotEmpty) {
+        FirebaseFirestore.instance
+            .collection('koleksi')
+            .doc(widget.id)
+            .collection('komentar')
+            .add({
+          'komentar': _commentController.text,
+          'timestamp': Timestamp.now(),
+          'username': username,
+        }).then((_) {
+          // Clear the text field
+          _commentController.clear();
+        }).catchError((error) {
+          print('Error adding comment: $error');
+        });
+      } else {
+        print('Username not found');
+      }
     } else {
       print('Comment is empty or user is not signed in');
     }
