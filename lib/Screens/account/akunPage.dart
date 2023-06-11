@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:login/Screens/homepage/components/home_page_body.dart';
 
 class AkunPage extends StatefulWidget {
   @override
@@ -34,76 +35,151 @@ class _AkunPageState extends State<AkunPage> {
     }
   }
 
+  void _showEditDialog(String field) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String? value = '';
+
+        return AlertDialog(
+          title: Text('Edit $field'),
+          content: TextField(
+            onChanged: (newValue) {
+              value = newValue;
+            },
+            decoration: InputDecoration(
+              labelText: field,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: Text('Save'),
+              onPressed: () async {
+                if (value != null && value!.isNotEmpty) {
+                  try {
+                    await firestore
+                        .collection('users')
+                        .doc(user.uid)
+                        .update({field: value});
+                    setState(() {
+                      switch (field) {
+                        case 'Username':
+                          username = value;
+                          break;
+                        case 'Email':
+                          email = value;
+                          break;
+                        case 'Mobile Number':
+                          mobileNumber = value;
+                          break;
+                        case 'College Name':
+                          collegeName = value;
+                          break;
+                        case 'User Type':
+                          userType = value;
+                          break;
+                        default:
+                          break;
+                      }
+                    });
+                    Navigator.pop(context);
+                  } catch (e) {
+                    print('Error updating user data: $e');
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back), // Add this line to add back button
-            onPressed: () {
-              Navigator.pop(context); // Add this line to make back button work
-            },
-          ),
-          title: Text('Settings'),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                // Put the function to handle settings here
-              },
-            )
-          ],
-        ),
-        body: StreamBuilder(
-          stream: FirebaseFirestore.instance
-              .collection('user')
-              .where('uid', isEqualTo: auth.currentUser!.uid)
-              .snapshots()
-              .map((querySnapshot) => querySnapshot.docs.first),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              var data = snapshot.data!.data();
-              var username = data['name'];
-              var email = data['email'];
-              var mobileNumber = data['mobileNumber'];
-              var collegeName = data['collegeName'];
-              var userType = data['userType'];
-
-              return ListView(
-                children: <Widget>[
-                  ListTile(
-                    leading: Icon(Icons.account_circle),
-                    title: Text('Username'),
-                    subtitle: Text(username ?? 'Loading...'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.email),
-                    title: Text('Email'),
-                    subtitle: Text(email ?? 'Loading...'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.phone),
-                    title: Text('Mobile Number'),
-                    subtitle: Text(mobileNumber ?? 'Loading...'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.school),
-                    title: Text('College Name'),
-                    subtitle: Text(collegeName ?? 'Loading...'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text('User Type'),
-                    subtitle: Text(userType ?? 'Loading...'),
-                  ),
-                ],
-              );
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              return CircularProgressIndicator();
-            }
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreenBody()),
+            );
           },
-        ));
+        ),
+        title: Text('Settings'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              // Put the function to handle settings here
+            },
+          )
+        ],
+      ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('user')
+            .where('uid', isEqualTo: auth.currentUser!.uid)
+            .snapshots()
+            .map((querySnapshot) => querySnapshot.docs.first),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var data = snapshot.data!.data();
+            var username = data['name'];
+            var email = data['email'];
+            var mobileNumber = data['mobileNumber'];
+            var collegeName = data['collegeName'];
+            var userType = data['userType'];
+
+            return ListView(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.account_circle),
+                  title: Text('Username'),
+                  subtitle: Text(username ?? 'Loading...'),
+                  onTap: () => _showEditDialog('Username'),
+                ),
+                ListTile(
+                  leading: Icon(Icons.email),
+                  title: Text('Email'),
+                  subtitle: Text(email ?? 'Loading...'),
+                  onTap: () => _showEditDialog('Email'),
+                ),
+                ListTile(
+                  leading: Icon(Icons.phone),
+                  title: Text('Mobile Number'),
+                  subtitle: Text(mobileNumber ?? 'Loading...'),
+                  onTap: () => _showEditDialog('Mobile Number'),
+                ),
+                ListTile(
+                  leading: Icon(Icons.school),
+                  title: Text('College Name'),
+                  subtitle: Text(collegeName ?? 'Loading...'),
+                  onTap: () => _showEditDialog('College Name'),
+                ),
+                ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text('User Type'),
+                  subtitle: Text(userType ?? 'Loading...'),
+                  onTap: () => _showEditDialog('User Type'),
+                ),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+      ),
+    );
   }
 }

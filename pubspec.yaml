@@ -26,6 +26,7 @@ dependencies:
   persistent_bottom_nav_bar: ^5.0.2
   provider: ^6.0.5
   image_picker: ^0.8.7+5
+  intl: ^0.18.1
 
 
 dev_dependencies:

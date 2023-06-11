@@ -62,6 +62,7 @@ class _AddArticlePageState extends State<AddArticlePage> {
           'judul': judul,
           'deskripsi': deskripsi,
           'imageUrl': imageUrl,
+          'date': Timestamp.now(),
         });
 
         Get.snackbar('Sukses', 'Data berhasil ditambahkan');

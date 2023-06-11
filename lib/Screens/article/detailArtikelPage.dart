@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:login/Screens/article/editartikelPage.dart';
 import 'package:login/Screens/homepage/components/home_page_body.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DetailArtikelPage extends StatefulWidget {
   final String id;
@@ -53,7 +55,10 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
   }
 
   Future<void> _sendComment() async {
-    if (_commentController.text.isNotEmpty) {
+    // Get current user
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (_commentController.text.isNotEmpty && user != null) {
       FirebaseFirestore.instance
           .collection('koleksi')
           .doc(widget.id)
@@ -61,10 +66,16 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
           .add({
         'komentar': _commentController.text,
         'timestamp': Timestamp.now(),
-        // Anda juga mungkin ingin menyimpan informasi tambahan seperti pengguna yang mengirim komentar
+
+        // You might also want to save additional information such as the user who posted the comment
+        'username':
+            user.displayName ?? 'Anonymous user', // add username to the comment
       });
 
+      // Clear the text field
       _commentController.clear();
+    } else {
+      print('Comment is empty or user is not signed in');
     }
   }
 
@@ -199,11 +210,16 @@ class _DetailArtikelPageState extends State<DetailArtikelPage> {
                     itemCount: snapshot.data?.docs.length ?? 0,
                     itemBuilder: (context, index) {
                       DocumentSnapshot comment = snapshot.data!.docs[index];
+                      String username = comment['username'];
+                      String komentar = comment['komentar'];
+                      Timestamp timestamp = comment['timestamp'];
+                      DateTime dateTime = timestamp.toDate();
+                      String formattedDate =
+                          DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
 
                       return ListTile(
-                        title: Text(comment['komentar']),
-                        subtitle:
-                            Text(comment['timestamp'].toDate().toString()),
+                        title: Text('$username: $komentar'),
+                        subtitle: Text(formattedDate),
                       );
                     },
                   );

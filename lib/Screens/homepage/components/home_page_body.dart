@@ -5,6 +5,8 @@ import 'package:login/Screens/account/akunPage.dart';
 import 'package:login/Screens/article/addArtikelPage.dart';
 import 'package:login/Screens/article/detailArtikelPage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:intl/intl.dart';
+import 'package:login/Screens/login/login.dart';
 
 class HomeScreenBody extends StatefulWidget {
   const HomeScreenBody({Key? key}) : super(key: key);
@@ -13,32 +15,71 @@ class HomeScreenBody extends StatefulWidget {
   State<HomeScreenBody> createState() => _HomeScreenBodyState();
 }
 
+class UserProfileDrawerHeader extends StatefulWidget {
+  @override
+  _UserProfileDrawerHeaderState createState() =>
+      _UserProfileDrawerHeaderState();
+}
+
+class _UserProfileDrawerHeaderState extends State<UserProfileDrawerHeader> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('user')
+          .where('uid', isEqualTo: auth.currentUser!.uid)
+          .snapshots()
+          .map((querySnapshot) => querySnapshot.docs.first),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return UserAccountsDrawerHeader(
+            accountName: Text('Loading...'),
+            accountEmail: Text('Loading...'),
+            currentAccountPicture: CircleAvatar(backgroundColor: Colors.orange),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return UserAccountsDrawerHeader(
+            accountName: Text('Error'),
+            accountEmail: Text('Error'),
+            currentAccountPicture: CircleAvatar(backgroundColor: Colors.red),
+          );
+        }
+
+        if (snapshot.hasData) {
+          var data = snapshot.data!.data();
+          var username = data['name'];
+          var email = data['email'];
+          var userType = data['userType'];
+          var imageUrl = data['imageUrl'];
+
+          return UserAccountsDrawerHeader(
+            accountName: Text(username),
+            accountEmail: Text(userType),
+            currentAccountPicture: imageUrl != null
+                ? CircleAvatar(backgroundImage: NetworkImage(imageUrl))
+                : CircleAvatar(backgroundColor: Colors.orange),
+          );
+        }
+
+        return UserAccountsDrawerHeader(
+          accountName: Text('No data'),
+          accountEmail: Text('No data'),
+          currentAccountPicture: CircleAvatar(backgroundColor: Colors.orange),
+        );
+      },
+    );
+  }
+}
+
 class _HomeScreenBodyState extends State<HomeScreenBody> {
   String _searchKeyword = '';
   final TextEditingController _searchController = TextEditingController();
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  late User user;
-  String? name, userType, imageUrl;
-
-  @override
-  void initState() {
-    super.initState();
-    user = auth.currentUser!;
-    _loadUserProfile();
-  }
-
-  Future<void> _loadUserProfile() async {
-    var docSnapshot = await firestore.collection("user").doc(user.uid).get();
-    if (docSnapshot.exists) {
-      var userData = docSnapshot.data();
-      setState(() {
-        name = userData!["name"];
-        userType = userData["userType"];
-        imageUrl = userData["imageUrl"];
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +206,10 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                       // Mengambil data judul dan imageUrl dari artikel
                       String judul = articles[index]['judul'];
                       String imageUrl = articles[index]['imageUrl'];
-                      print(imageUrl);
+                      Timestamp timestamp = articles[index]['date'];
+                      DateTime date = timestamp.toDate();
+                      String formattedDate =
+                          DateFormat('dd MMMM yyyy').format(date);
 
                       return ListTile(
                         onTap: () {
@@ -191,7 +235,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
                         ),
                         title: Text(judul),
                         subtitle: Text(
-                            'Author: '), // masukin nama author yang buat artikel nya
+                            'Tanggal rilis: $formattedDate'), // masukan nama author yang buat artikel nya
                       );
                     },
                   );
@@ -205,13 +249,7 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text(name ?? 'Loading...'),
-              accountEmail: Text(userType ?? 'Loading...'),
-              currentAccountPicture: imageUrl != null
-                  ? CircleAvatar(backgroundImage: NetworkImage(imageUrl!))
-                  : CircleAvatar(backgroundColor: Colors.orange),
-            ),
+            UserProfileDrawerHeader(),
             ListTile(
               leading: Icon(Icons.home),
               title: Text('Home'),
@@ -223,18 +261,10 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.bookmark),
-              title: Text('Bookmark'),
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
               onTap: () {
-                //fungsi bookmark buat nge save artikel yang udh di bookmark
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text(
-                  'Settings'), //masuk ke halaman setting profile buat edit data user
-              onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AkunPage()),
                 );
@@ -242,10 +272,14 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
             ),
             ListTile(
               leading: Icon(Icons.logout),
-              title: Text('Log Out'),
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                //fungsi log out firebase
+              title: Text('Logout'),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                // Setelah berhasil sign out, arahkan pengguna ke halaman login
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
               },
             ),
           ],
