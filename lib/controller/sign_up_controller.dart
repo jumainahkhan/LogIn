@@ -90,22 +90,29 @@ class SignUpController extends GetxController {
   }
 
   Future postSignUpDetails() async {
-    await FirebaseFirestore.instance.collection("user").add({
-      "userType": userType,
-      "name": name,
-      "email": email,
-      "password": password,
-      "mobileNumber": mobileNumber,
-      "collegeName": collegeName,
-    }).then((docRef) async {
-      String imageUrl = await uploadImageFile(); // Upload image and get URL
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      await docRef.update({
-        'uid': uid,
-        "imageUrl": imageUrl
-      }); // Add imageUrl to the user document
-      uploadResumeFile();
+    String newDocId =
+        FirebaseAuth.instance.currentUser?.uid ?? ''; // ID dokumen yang baru
+
+// Membuat dokumen baru dengan ID baru
+    DocumentReference newDocRef =
+        FirebaseFirestore.instance.collection('user').doc(newDocId);
+
+    String imageUrl = await uploadImageFile(); // Upload image and get URL
+
+// Menyimpan data ke dokumen baru
+    await newDocRef.set({
+      'docId': newDocId,
+      'uid': FirebaseAuth.instance.currentUser!.uid,
+      'userType': userType,
+      'name': name,
+      'email': email,
+      'password': password,
+      'mobileNumber': mobileNumber,
+      'collegeName': collegeName,
+      'imageUrl': imageUrl,
     });
+
+    uploadResumeFile();
     await Get.offAll(const HomeScreen());
   }
 

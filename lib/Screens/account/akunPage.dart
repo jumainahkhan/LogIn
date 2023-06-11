@@ -22,7 +22,7 @@ class _AkunPageState extends State<AkunPage> {
   }
 
   Future<void> _loadUserProfile() async {
-    var docSnapshot = await firestore.collection("users").doc(user.uid).get();
+    var docSnapshot = await firestore.collection("user").doc(user.uid).get();
     if (docSnapshot.exists) {
       var userData = docSnapshot.data();
       setState(() {
@@ -64,24 +64,24 @@ class _AkunPageState extends State<AkunPage> {
                 if (value != null && value!.isNotEmpty) {
                   try {
                     await firestore
-                        .collection('users')
+                        .collection('user')
                         .doc(user.uid)
                         .update({field: value});
                     setState(() {
                       switch (field) {
-                        case 'Username':
+                        case 'name':
                           username = value;
                           break;
                         case 'Email':
                           email = value;
                           break;
-                        case 'Mobile Number':
+                        case 'mobileNumber':
                           mobileNumber = value;
                           break;
-                        case 'College Name':
+                        case 'collegeName':
                           collegeName = value;
                           break;
-                        case 'User Type':
+                        case 'userType':
                           userType = value;
                           break;
                         default:
@@ -145,31 +145,31 @@ class _AkunPageState extends State<AkunPage> {
                   leading: Icon(Icons.account_circle),
                   title: Text('Username'),
                   subtitle: Text(username ?? 'Loading...'),
-                  onTap: () => _showEditDialog('Username'),
+                  onTap: () => _showEditDialog('name'),
                 ),
                 ListTile(
                   leading: Icon(Icons.email),
                   title: Text('Email'),
                   subtitle: Text(email ?? 'Loading...'),
-                  onTap: () => _showEditDialog('Email'),
+                  onTap: () => _showEditDialog('email'),
                 ),
                 ListTile(
                   leading: Icon(Icons.phone),
                   title: Text('Mobile Number'),
                   subtitle: Text(mobileNumber ?? 'Loading...'),
-                  onTap: () => _showEditDialog('Mobile Number'),
+                  onTap: () => _showEditDialog('mobileNumber'),
                 ),
                 ListTile(
                   leading: Icon(Icons.school),
                   title: Text('College Name'),
                   subtitle: Text(collegeName ?? 'Loading...'),
-                  onTap: () => _showEditDialog('College Name'),
+                  onTap: () => _showEditDialog('collegeName'),
                 ),
                 ListTile(
                   leading: Icon(Icons.person),
                   title: Text('User Type'),
                   subtitle: Text(userType ?? 'Loading...'),
-                  onTap: () => _showEditDialog('User Type'),
+                  onTap: () => _showEditDialog('userType'),
                 ),
               ],
             );
