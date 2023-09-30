@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:login/components/my_button.dart';
 import 'package:login/components/my_textfield.dart';
-import 'package:login/screens/signup/sign_up.dart';
+
+import '../../signup/sign_up.dart';
 
 class LoginBodyScreen extends StatefulWidget {
   const LoginBodyScreen({super.key});
@@ -17,8 +18,10 @@ class LoginBodyScreen extends StatefulWidget {
 class _LoginBodyScreenState extends State<LoginBodyScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
   void signUserIn() async {
     try {
+      // Masuk menggunakan email dan password
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
     } on FirebaseAuthException catch (e) {
@@ -27,6 +30,7 @@ class _LoginBodyScreenState extends State<LoginBodyScreen> {
   }
 
   void showErrorMessage(String message) {
+    // Tampilkan dialog dengan pesan error
     showDialog(
         context: context,
         builder: (context) {
@@ -40,12 +44,14 @@ class _LoginBodyScreenState extends State<LoginBodyScreen> {
 
   void validateEmail(String val) {
     if (val.isEmpty) {
+      // Validasi jika email kosong
       setState(() {
-        _errorMessage = "Email can not be empty";
+        _errorMessage = "Email tidak boleh kosong";
       });
     } else if (!EmailValidator.validate(val, true)) {
+      // Validasi jika email tidak valid
       setState(() {
-        _errorMessage = "Invalid Email Address";
+        _errorMessage = "Alamat Email tidak valid";
       });
     } else {
       setState(() {
@@ -59,7 +65,7 @@ class _LoginBodyScreenState extends State<LoginBodyScreen> {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: HexColor("#fed8c3"),
+        backgroundColor: Colors.green,
         body: ListView(
           padding: const EdgeInsets.fromLTRB(0, 400, 0, 0),
           shrinkWrap: true,
@@ -116,7 +122,7 @@ class _LoginBodyScreenState extends State<LoginBodyScreen> {
                                       validateEmail(emailController.text);
                                     }),
                                     controller: emailController,
-                                    hintText: "hello@gmail.com",
+                                    hintText: "masukkan email anda",
                                     obscureText: false,
                                     prefixIcon: const Icon(Icons.mail_outline),
                                   ),
@@ -165,14 +171,14 @@ class _LoginBodyScreenState extends State<LoginBodyScreen> {
                                         const EdgeInsets.fromLTRB(35, 0, 0, 0),
                                     child: Row(
                                       children: [
-                                        Text("Don't have an account?",
+                                        Text("Belum punya akun?",
                                             style: GoogleFonts.poppins(
                                               fontSize: 15,
                                               color: HexColor("#8d8d8d"),
                                             )),
                                         TextButton(
                                           child: Text(
-                                            "Sign Up",
+                                            "Daftar",
                                             style: GoogleFonts.poppins(
                                               fontSize: 15,
                                               color: HexColor("#44564a"),

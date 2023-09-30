@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:email_validator/email_validator.dart';
 
-import 'package:login/screens/login/login.dart';
 // ignore: unused_import
 import 'package:login/components/my_button.dart';
 import 'package:login/controller/flow_controller.dart';
 import 'package:login/controller/sign_up_controller.dart';
-import 'package:email_validator/email_validator.dart';
 
-List<String> list = <String>['Student', 'Teacher', 'Alumni'];
+import '../../login/login.dart';
+
+List<String> list = <String>['Pembaca', 'Penulis'];
 
 class SignUpOne extends StatefulWidget {
   const SignUpOne({super.key});
@@ -31,6 +32,7 @@ class _SignUpOneState extends State<SignUpOne> {
   @override
   Widget build(BuildContext context) {
     debugPrint(signUpController.userType);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(30, 20, 30, 20),
@@ -68,6 +70,7 @@ class _SignUpOneState extends State<SignUpOne> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // User Type Dropdown
                   Text(
                     "User Type",
                     style: GoogleFonts.poppins(
@@ -106,6 +109,7 @@ class _SignUpOneState extends State<SignUpOne> {
                   const SizedBox(
                     height: 1,
                   ),
+                  // Email Input
                   Text(
                     "Email",
                     style: GoogleFonts.poppins(
@@ -154,6 +158,7 @@ class _SignUpOneState extends State<SignUpOne> {
                   const SizedBox(
                     height: 5,
                   ),
+                  // Password Input
                   Text(
                     "Password",
                     style: GoogleFonts.poppins(
@@ -193,34 +198,39 @@ class _SignUpOneState extends State<SignUpOne> {
                   const SizedBox(
                     height: 5,
                   ),
+                  // Proceed Button
                   MyButton(
-                      buttonText: 'Proceed',
-                      onPressed: () async {
-                        if (signUpController.userType != null &&
-                            signUpController.email != null &&
-                            signUpController.password != null) {
-                          bool isRegistered =
-                              await signUpController.registerUser(
-                                  signUpController.email.toString(),
-                                  signUpController.password.toString());
-                          debugPrint(isRegistered.toString());
-                          if (isRegistered) {
-                            Get.snackbar("Success", "User Registered");
-                            flowController.setFlow(2);
-                          } else {
-                            Get.snackbar("Error", "Please fill all the fields");
-                          }
+                    buttonText: 'Proceed',
+                    onPressed: () async {
+                      if (signUpController.userType != null &&
+                          signUpController.email != null &&
+                          signUpController.password != null) {
+                        bool isRegistered = await signUpController.registerUser(
+                          signUpController.email.toString(),
+                          signUpController.password.toString(),
+                        );
+                        debugPrint(isRegistered.toString());
+                        if (isRegistered) {
+                          Get.snackbar("Success", "User Registered");
+                          flowController.setFlow(2);
+                        } else {
+                          Get.snackbar("Error", "Please fill all the fields");
                         }
-                      }),
+                      }
+                    },
+                  ),
+                  // Login Navigation
                   Padding(
                     padding: const EdgeInsets.fromLTRB(35, 0, 0, 0),
                     child: Row(
                       children: [
-                        Text("Already have an account?",
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              color: HexColor("#8d8d8d"),
-                            )),
+                        Text(
+                          "Already have an account?",
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            color: HexColor("#8d8d8d"),
+                          ),
+                        ),
                         TextButton(
                           child: Text(
                             "Log In",

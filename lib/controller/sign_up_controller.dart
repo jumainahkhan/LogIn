@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:login/Screens/homepage/home_page.dart';
 
 import 'package:login/models/file_model.dart';
 
@@ -89,24 +90,39 @@ class SignUpController extends GetxController {
   }
 
   Future postSignUpDetails() async {
-    await FirebaseFirestore.instance.collection("user").add({
-      "userType": userType,
-      "name": name,
-      "email": email,
-      "password": password,
-      "mobileNumber": mobileNumber,
-      "collegeName": collegeName,
-      "admissionYear": admissionYear,
-      "passOutYear": passOutYear,
+    String newDocId =
+        FirebaseAuth.instance.currentUser?.uid ?? ''; // ID dokumen yang baru
+
+// Membuat dokumen baru dengan ID baru
+    DocumentReference newDocRef =
+        FirebaseFirestore.instance.collection('user').doc(newDocId);
+
+    String imageUrl = await uploadImageFile(); // Upload image and get URL
+
+// Menyimpan data ke dokumen baru
+    await newDocRef.set({
+      'docId': newDocId,
+      'uid': FirebaseAuth.instance.currentUser!.uid,
+      'userType': userType,
+      'name': name,
+      'email': email,
+      'password': password,
+      'mobileNumber': mobileNumber,
+      'collegeName': collegeName,
+      'imageUrl': imageUrl,
     });
-    uploadImageFile();
+
     uploadResumeFile();
+    await Get.offAll(const HomeScreen());
   }
 
-  Future uploadImageFile() async {
-    await FirebaseStorage.instance
+  Future<String> uploadImageFile() async {
+    var uploadTask = await FirebaseStorage.instance
         .ref('files/${imageFile!.filename}')
         .putData(imageFile!.fileBytes);
+
+    var downloadURL = await uploadTask.ref.getDownloadURL();
+    return downloadURL.toString(); // Return the download URL
   }
 
   Future uploadResumeFile() async {

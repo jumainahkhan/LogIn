@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "236710668549",
-    "project_id": "auth-e9db6",
-    "storage_bucket": "auth-e9db6.appspot.com"
+    "project_number": "636703879553",
+    "project_id": "health-5f252",
+    "storage_bucket": "health-5f252.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:236710668549:android:89e7de900ab8f759afef6c",
+        "mobilesdk_app_id": "1:636703879553:android:7ab5928affd4a0e785b880",
         "android_client_info": {
           "package_name": "com.example.login"
         }
       },
       "oauth_client": [
         {
-          "client_id": "236710668549-o9ptjqrmp5mvm443ej7istal7gpq3j2a.apps.googleusercontent.com",
+          "client_id": "636703879553-g00gtc890u7i8eutctj0fbdudg7brbth.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCfCfL6Bf8z44eEodDLzV5P_34JX9Xk7KM"
+          "current_key": "AIzaSyD7f40v5NXdTlGCBkpr0pBSkij395qsGdY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "236710668549-o9ptjqrmp5mvm443ej7istal7gpq3j2a.apps.googleusercontent.com",
+              "client_id": "636703879553-g00gtc890u7i8eutctj0fbdudg7brbth.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

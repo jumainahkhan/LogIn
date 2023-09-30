@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:login/screens/homepage/components/home_page_body.dart';
+
+import 'components/home_page_body.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

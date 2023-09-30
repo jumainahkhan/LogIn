@@ -16,12 +16,18 @@ dependencies:
   firebase_auth: ^4.2.5
   firebase_core: ^2.4.1
   firebase_storage: ^11.0.10
+  carousel_slider: ^4.0.0
   flutter:
     sdk: flutter
 
   get: ^4.6.5
-  google_fonts: ^3.0.1
+  google_fonts: ^4.0.1
   hexcolor: ^3.0.1
+  persistent_bottom_nav_bar: ^5.0.2
+  provider: ^6.0.5
+  image_picker: ^0.8.7+5
+  intl: ^0.18.1
+
 
 dev_dependencies:
   flutter_lints: ^2.0.0
